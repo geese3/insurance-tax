@@ -444,7 +444,7 @@
 
       function getAgeGroup(age) {
         if (age < 30) return null;
-        if (age > 70) return 70;
+        if (age > 70) return null;
         return Math.floor(age / 5) * 5;
       }
 
@@ -478,14 +478,18 @@
         const type = document.getElementById("type").value;
         const localTaxRate = 0.1; // 지방세율 고정 (10%)
 
-        if (isNaN(revenue) || isNaN(annualInsurance) || isNaN(age)) {
+        if (!revenue || !monthlyInsurance || !age) {
           alert("모든 필드를 올바르게 입력하세요!");
           return;
         }
 
-        const ageGroup = getAgeGroup(age);
-        if (ageGroup === null) {
+        if (age < 30) {
           alert("30세 미만의 환급률은 제공되지 않습니다.");
+          return;
+        }
+
+        if (age > 70) {
+          alert("70세 초과의 환급률은 제공되지 않습니다.");
           return;
         }
 
