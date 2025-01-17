@@ -553,16 +553,18 @@
 
       function resetForm() {
         // 입력 필드 초기화
-        document.getElementById("revenue").value = "";
-        document.getElementById("insurance").value = "";
-        document.getElementById("age").value = "";
-        document.getElementById("type").selectedIndex = 0;
+        setTimeout(() => {
+          document.getElementById("revenue").value = "";
+          document.getElementById("insurance").value = "";
+          document.getElementById("age").value = ""; // 나이 필드 초기화
+          document.getElementById("type").selectedIndex = 0; // 셀렉트 박스 초기화
 
-        // 결과 영역 초기화
-        document.getElementById("summary-title").textContent =
-          "세금 절감 내역 및 해지환급금(예시)";
-        const tableBody = document.querySelector("#history-table tbody");
-        tableBody.innerHTML = "";
+          // 결과 영역 초기화
+          document.getElementById("summary-title").textContent =
+            "세금 절감 내역 및 해지환급금(예시)";
+          const tableBody = document.querySelector("#history-table tbody");
+          tableBody.innerHTML = ""; // 테이블 초기화
+        }, 0); // 0ms 딜레이를 추가해 DOM 업데이트 적용 보장
       }
 
       // 계산 버튼 클릭
