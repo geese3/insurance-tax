@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>보험료 세금 절감 계산기</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f4f4f9;
+      }
+      .container {
+        max-width: 900px;
+        margin: 50px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input {
+        width: 97.5%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+      }
+      select {
+        appearance: none;
+        -webkit-appearance: none; /* iOS Safari & Chrome */
+        -moz-appearance: none; /* Firefox */
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 16px;
+        width: 100%;
+        box-sizing: border-box;
+        position: relative;
+        z-index: 1;
+      }
+      select:focus {
+        outline: none; /* 포커스 시 기본 테두리 제거 */
+        border-color: #007bff; /* 포커스 시 테두리 색상 변경 */
+      }
+      .input-row {
+        display: flex;
+        gap: 20px; /* 필드 사이 간격 */
+        margin-bottom: 15px;
+      }
+      .input-row select {
+        z-index: 1; /* 드롭다운 메뉴가 다른 요소 위에 표시되도록 설정 */
+      }
+      .input-row > div {
+        flex: 1; /* 동일한 너비 */
+      }
+      .button-container {
+        display: flex;
+        gap: 10px; /* 버튼 사이의 간격 */
+      }
+      button {
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      #calculate {
+        flex: 7; /* 7:3 비율 */
+        background: #007bff;
+        color: white;
+      }
+      #calculate:hover {
+        background: #0056b3;
+      }
+      #reset {
+        flex: 3; /* 7:3 비율 */
+        background: #dc3545;
+        color: white;
+      }
+      #reset:hover {
+        background: #a71d2a;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: center;
+      }
+      th {
+        background: #007bff;
+        color: white;
+      }
+      table-container {
+        overflow-x: auto; /* 테이블이 깨지지 않도록 스크롤 활성화 */
+      }
+
+      /* 반응형 스타일 추가 */
+      @media (max-width: 768px) {
+        #summary-title {
+          font-size: 1em;
+          margin-top: 30px;
+        }
+        input {
+          width: 94%;
+        }
+        .input-row {
+          flex-direction: column; /* 세로로 쌓이도록 변경 */
+          gap: 15px; /* 세로 간격 축소 */
+        }
+        .input-row > div {
+          width: 100%; /* 입력 필드 너비를 100%로 조정 */
+        }
+        select {
+          appearance: none; /* 모든 브라우저 기본 스타일 제거 */
+          -webkit-appearance: none; /* Safari, Chrome */
+          -moz-appearance: none; /* Firefox */
+          background-color: white; /* 배경색 설정 */
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          padding: 10px;
+          font-size: 16px;
+          width: 100%;
+          box-sizing: border-box;
+          position: relative;
+        }
+        select:focus {
+          outline: none; /* 포커스 시 기본 테두리 제거 */
+          border-color: #007bff; /* 포커스 시 테두리 색상 변경 */
+        }
+        .input-row select {
+          z-index: 1; /* 드롭다운 메뉴가 다른 요소 위에 표시되도록 설정 */
+        }
+        button {
+          flex: 1; /* 버튼 비율 동일하게 */
+        }
+        table th,
+        table td {
+          font-size: 0.5rem; /* 글꼴 크기 줄임 */
+          padding: 3px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>보험료 세금 절감 계산기</h1>
+      <form id="tax-form">
+        <label for="revenue">연 매출 (원):</label>
+        <input
+          type="text"
+          id="revenue"
+          placeholder="예: 500,000,000"
+          required
+        />
+
+        <label for="insurance">월 납입 보험료 (원):</label>
+        <input
+          type="text"
+          id="insurance"
+          placeholder="예: 2,000,000"
+          required
+        />
+
+        <div class="input-row">
+          <div>
+            <label for="age">나이:</label>
+            <input type="number" id="age" placeholder="예: 33" required />
+          </div>
+          <div>
+            <label for="type">심사 유형:</label>
+            <select id="type" required>
+              <option value="일반심사형">일반심사형</option>
+              <option value="간편심사형">간편심사형</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="button-container">
+          <button type="button" id="calculate">계산하기</button>
+          <button type="button" id="reset">초기화</button>
+        </div>
+      </form>
+
+      <div id="results">
+        <h2 id="summary-title">세금 절감 내역 및 해지환급금(예시)</h2>
+        <table id="history-table">
+          <thead>
+            <tr>
+              <th>연차</th>
+              <th>총 납입 보험료</th>
+              <th>법인세+지방세 절감액</th>
+              <th>누적 절감액</th>
+              <th>해지환급금</th>
+              <th>해지환급금+누적 절감액</th>
+              <th>총납보험료-(해지환급금+절세액)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      const refundRate = {
+        일반심사형: {
+          30: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.382,
+            4: 0.401,
+            5: 0.83,
+            6: 0.852,
+            7: 0.871,
+            8: 0.883,
+            9: 0.894,
+            10: 0.906,
+          },
+          35: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.384,
+            4: 0.403,
+            5: 0.834,
+            6: 0.856,
+            7: 0.874,
+            8: 0.886,
+            9: 0.897,
+            10: 0.909,
+          },
+          40: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.386,
+            4: 0.405,
+            5: 0.838,
+            6: 0.86,
+            7: 0.878,
+            8: 0.89,
+            9: 0.901,
+            10: 0.913,
+          },
+          45: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.388,
+            4: 0.407,
+            5: 0.842,
+            6: 0.864,
+            7: 0.882,
+            8: 0.894,
+            9: 0.905,
+            10: 0.917,
+          },
+          50: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.39,
+            4: 0.409,
+            5: 0.846,
+            6: 0.868,
+            7: 0.886,
+            8: 0.898,
+            9: 0.909,
+            10: 0.921,
+          },
+          55: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.392,
+            4: 0.411,
+            5: 0.85,
+            6: 0.872,
+            7: 0.89,
+            8: 0.902,
+            9: 0.913,
+            10: 0.925,
+          },
+          60: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.394,
+            4: 0.413,
+            5: 0.854,
+            6: 0.876,
+            7: 0.894,
+            8: 0.906,
+            9: 0.917,
+            10: 0.929,
+          },
+          65: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.396,
+            4: 0.415,
+            5: 0.858,
+            6: 0.88,
+            7: 0.898,
+            8: 0.91,
+            9: 0.921,
+            10: 0.933,
+          },
+          70: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.398,
+            4: 0.417,
+            5: 0.862,
+            6: 0.884,
+            7: 0.902,
+            8: 0.914,
+            9: 0.925,
+            10: 0.937,
+          },
+        },
+        간편심사형: {
+          30: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.378,
+            4: 0.4,
+            5: 0.832,
+            6: 0.857,
+            7: 0.877,
+            8: 0.889,
+            9: 0.9,
+            10: 0.912,
+          },
+          35: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.382,
+            4: 0.403,
+            5: 0.836,
+            6: 0.86,
+            7: 0.88,
+            8: 0.891,
+            9: 0.902,
+            10: 0.914,
+          },
+          40: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.386,
+            4: 0.406,
+            5: 0.839,
+            6: 0.862,
+            7: 0.882,
+            8: 0.893,
+            9: 0.904,
+            10: 0.916,
+          },
+          45: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.39,
+            4: 0.408,
+            5: 0.841,
+            6: 0.864,
+            7: 0.884,
+            8: 0.895,
+            9: 0.906,
+            10: 0.918,
+          },
+          50: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.394,
+            4: 0.41,
+            5: 0.843,
+            6: 0.866,
+            7: 0.886,
+            8: 0.897,
+            9: 0.908,
+            10: 0.92,
+          },
+          55: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.398,
+            4: 0.412,
+            5: 0.845,
+            6: 0.868,
+            7: 0.888,
+            8: 0.899,
+            9: 0.91,
+            10: 0.922,
+          },
+          60: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.402,
+            4: 0.414,
+            5: 0.847,
+            6: 0.87,
+            7: 0.89,
+            8: 0.901,
+            9: 0.912,
+            10: 0.924,
+          },
+          65: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.406,
+            4: 0.416,
+            5: 0.849,
+            6: 0.872,
+            7: 0.892,
+            8: 0.903,
+            9: 0.914,
+            10: 0.926,
+          },
+          70: {
+            1: 0.0,
+            2: 0.0,
+            3: 0.41,
+            4: 0.418,
+            5: 0.851,
+            6: 0.874,
+            7: 0.894,
+            8: 0.905,
+            9: 0.916,
+            10: 0.928,
+          },
+        },
+      };
+
+      function getAgeGroup(age) {
+        if (age < 30) return null;
+        if (age > 70) return 70;
+        return Math.floor(age / 5) * 5;
+      }
+
+      function removeCommas(value) {
+        return parseFloat(value.replace(/,/g, "")) || 0;
+      }
+
+      function addCommas(value) {
+        if (isNaN(value)) return "";
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+
+      // 입력 필드에 실시간 콤마 적용
+      document.querySelectorAll('input[type="text"]').forEach((input) => {
+        input.addEventListener("input", (e) => {
+          const rawValue = removeCommas(e.target.value);
+          if (!isNaN(rawValue)) {
+            e.target.value = addCommas(rawValue);
+          }
+        });
+      });
+
+      function calculateSavings() {
+        const revenue = removeCommas(document.getElementById("revenue").value);
+        const monthlyInsurance = removeCommas(
+          document.getElementById("insurance").value
+        );
+        const annualInsurance = monthlyInsurance * 12; // 연간 보험료
+        // const years = parseInt(document.getElementById("years").value, 10);
+        const age = parseInt(document.getElementById("age").value, 10);
+        const type = document.getElementById("type").value;
+        const localTaxRate = 0.1; // 지방세율 고정 (10%)
+
+        if (isNaN(revenue) || isNaN(annualInsurance) || isNaN(age)) {
+          alert("모든 필드를 올바르게 입력하세요!");
+          return;
+        }
+
+        const ageGroup = getAgeGroup(age);
+        if (ageGroup === null) {
+          alert("30세 미만의 환급률은 제공되지 않습니다.");
+          return;
+        }
+
+        const refundRatesForType = refundRate[type];
+        if (!refundRatesForType || !refundRatesForType[ageGroup]) {
+          alert("해당 나이와 심사 유형의 환급률 데이터가 없습니다.");
+          return;
+        }
+
+        // 법인세율 결정
+        let corporateTaxRate;
+        if (revenue <= 200000000) {
+          corporateTaxRate = 0.1; // 10%
+        } else if (revenue <= 1000000000) {
+          corporateTaxRate = 0.2; // 20%
+        } else {
+          corporateTaxRate = 0.22; // 22%
+        }
+
+        // **동적으로 제목 설정**
+        const summaryTitle = document.getElementById("summary-title");
+        summaryTitle.textContent = `세금 절감 내역 및 해지환급금(예시) (법인세율 ${
+          corporateTaxRate * 100
+        }%)`;
+
+        // 테이블 초기화
+        const tableBody = document.querySelector("#history-table tbody");
+        tableBody.innerHTML = "";
+
+        // 절감액 계산
+        let cumulativeSavings = 0;
+        let cumulativeInsurance = 0;
+
+        for (let year = 1; year <= 10; year++) {
+          cumulativeInsurance += annualInsurance; // 누적 납입 보험료
+          const corporateTaxSavings = annualInsurance * corporateTaxRate;
+          const localTaxSavings = corporateTaxSavings * localTaxRate;
+          const annualSavings = corporateTaxSavings + localTaxSavings;
+          const totalTaxSavings = corporateTaxSavings + localTaxSavings;
+          cumulativeSavings += annualSavings;
+
+          const refundRate = refundRatesForType[ageGroup][year] || 0;
+          const surrenderValue = cumulativeInsurance * refundRate;
+          const totalValue = surrenderValue + cumulativeSavings;
+
+          // 총납보험료 - (해지환급금 + 절세액)
+          const remainingCost = totalValue - cumulativeInsurance;
+
+          // 테이블에 행 추가
+          const row = document.createElement("tr");
+          row.innerHTML = `
+                    <td>${year}년</td>
+                    <td>${addCommas(cumulativeInsurance.toFixed(0))}</td>
+                    <td>${addCommas(totalTaxSavings.toFixed(0))}</td>
+                    <td>${addCommas(cumulativeSavings.toFixed(0))}</td>
+                    <td>${addCommas(surrenderValue.toFixed(0))}</td>
+                    <td>${addCommas(totalValue.toFixed(0))}</td>
+                    <td style="color: ${
+                      remainingCost < 0 ? "red" : "green"
+                    }">${addCommas(remainingCost.toFixed(0))}</td>
+                `;
+          tableBody.appendChild(row);
+        }
+      }
+
+      function resetForm() {
+        // 입력 필드 초기화
+        document.getElementById("revenue").value = "";
+        document.getElementById("insurance").value = "";
+        document.getElementById("years").value = "";
+
+        // 결과 영역 초기화
+        document.getElementById("summary-title").textContent = "세금 절감 내역";
+        const tableBody = document.querySelector("#history-table tbody");
+        tableBody.innerHTML = "";
+      }
+
+      // 계산 버튼 클릭
+      document
+        .getElementById("calculate")
+        .addEventListener("click", calculateSavings);
+
+      // 초기화 버튼 클릭
+      document.getElementById("reset").addEventListener("click", resetForm);
+
+      // 엔터키로 계산
+      document.getElementById("tax-form").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault(); // 폼 제출 기본 동작 방지
+          calculateSavings();
+        }
+      });
+    </script>
+  </body>
+</html>
