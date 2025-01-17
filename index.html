@@ -57,7 +57,7 @@
       .input-row {
         display: flex;
         gap: 20px; /* 필드 사이 간격 */
-        margin-bottom: 15px;
+        margin-bottom: 20px;
       }
       .input-row select {
         z-index: 1; /* 드롭다운 메뉴가 다른 요소 위에 표시되도록 설정 */
@@ -555,10 +555,12 @@
         // 입력 필드 초기화
         document.getElementById("revenue").value = "";
         document.getElementById("insurance").value = "";
-        document.getElementById("years").value = "";
+        document.getElementById("age").value = "";
+        document.getElementById("type").selectedIndex = 0;
 
         // 결과 영역 초기화
-        document.getElementById("summary-title").textContent = "세금 절감 내역";
+        document.getElementById("summary-title").textContent =
+          "세금 절감 내역 및 해지환급금(예시)";
         const tableBody = document.querySelector("#history-table tbody");
         tableBody.innerHTML = "";
       }
